@@ -663,13 +663,19 @@ void main_driver(const char* argv)
     // AJN - we don't understand why you need this for ions
 #if (BL_SPACEDIM == 3)
     int paramPlaneCount = 6;
-    paramPlane paramPlaneList[paramPlaneCount];
-    BuildParamplanes(paramPlaneList,paramPlaneCount,realDomain.lo(),realDomain.hi());
+    // Make paramPlaneList GPU compatible
+    Gpu::ManagedVector<paramPlane> paramPlaneList(paramPlaneCount);
+    // Set up a pointer to access data of paramPlaneList, which is used as a normal vector everywhere
+    paramPlane* pparamPlaneList = paramPlaneList.data();
+    BuildParamplanes(pparamPlaneList,paramPlaneCount,realDomain.lo(),realDomain.hi());
 #endif
 #if (BL_SPACEDIM == 2)
     int paramPlaneCount = 5;
-    paramPlane paramPlaneList[paramPlaneCount];
-    BuildParamplanes(paramPlaneList,paramPlaneCount,realDomain.lo(),realDomain.hi());
+    // Make paramPlaneList GPU compatible
+    Gpu::ManagedVector<paramPlane> paramPlaneList(paramPlaneCount);
+    // Set up a pointer to access data of paramPlaneList, which is used as a normal vector everywhere
+    paramPlane* pparamPlaneList = paramPlaneList.data();
+    BuildParamplanes(pparamPlaneList,paramPlaneCount,realDomain.lo(),realDomain.hi());
 #endif
 
     // IBMarkerContainerBase default behaviour is to do tiling. Turn off here:
@@ -919,7 +925,7 @@ void main_driver(const char* argv)
 
 //        if(istep == 1)
 //        {
-//            particles.SetPosition(1, prob_hi[0]*0.5, prob_hi[1]*0.5, prob_hi[2]*0.5);
+//            particles.SetPosition(1, prob_hi[0]*0.5, prob_hi[1]*0.45, prob_hi[2]*0.5);
 //        }
 
     
@@ -946,7 +952,7 @@ void main_driver(const char* argv)
             // set velx/y/z and forcex/y/z for each particle to zero
             particles.ResetMarkers(0);
         }
-
+//	    particles.SetForce(1,1,0,0);
 //        Real origin[3];
 //        origin[0] = prob_hi[0]/2.0;
 //        origin[1] = prob_hi[1]/2.0;
@@ -1086,7 +1092,7 @@ void main_driver(const char* argv)
         {
             //Calls wet ion interpolation and movement.
 
-            particles.MoveIonsCPP(dt, dx, dxp, geom, umac, efield, RealFaceCoords, source, sourceTemp, paramPlaneList,
+            particles.MoveIonsCPP(dt, dx, dxp, geom, umac, efield, RealFaceCoords, source, sourceTemp, pparamPlaneList,
                                paramPlaneCount, 3 /*this number currently does nothing, but we will use it later*/);
 
             // reset statistics after step n_steps_skip
@@ -1182,13 +1188,13 @@ void main_driver(const char* argv)
 
             // charge
             MultiFab::Copy(struct_cc_charge, charge, 0, 0, nvar_sf_charge, 0);
-            structFact_charge.FortStructure(struct_cc_charge,geomP,fft_type);
+            structFact_charge.FortStructure(struct_cc_charge,geomP);
 
             // velocity
             for (int d=0; d<AMREX_SPACEDIM; ++d) {
                 ShiftFaceToCC(umac[d],0,struct_cc_vel,d,1);
             }
-            structFact_vel.FortStructure(struct_cc_vel,geom,fft_type);
+            structFact_vel.FortStructure(struct_cc_vel,geom);
             
             // plot structure factor on plot_int
             if (istep%plot_int == 0) {
