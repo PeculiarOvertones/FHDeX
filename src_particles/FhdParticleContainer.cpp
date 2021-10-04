@@ -313,12 +313,12 @@ void FhdParticleContainer::computeForcesNLGPU(const MultiFab& charge, const Mult
 #pragma omp parallel
 #endif
 
-    //if(doRedist != 0)
-    //{
+    if(doRedist != 0)
+    {
         fillNeighbors();
 
         buildNeighborList(CHECK_PAIR{});
-    //}
+    }
 
    for (FhdParIter pti(*this, lev, MFItInfo().SetDynamic(false)); pti.isValid(); ++pti)
    {     
@@ -569,7 +569,7 @@ void FhdParticleContainer::MoveIonsCPP(const Real dt, const Real* dxFluid, const
 
                 ParticleType & part = particles[i];
 
-		GpuArray<Real, 3> posOld;
+		        GpuArray<Real, 3> posOld;
                 GpuArray<Real, 3> velOld;
                 GpuArray<Real, 3> posAlt;
 
@@ -587,7 +587,7 @@ void FhdParticleContainer::MoveIonsCPP(const Real dt, const Real* dxFluid, const
                         Real runtime = 0.5*dt;
                         Real inttime = 0;
                         int midpoint = 0;
-			int intsurf, intside, push;
+			            int intsurf, intside, push;
 
                         while(runtime > 0)
                         {
@@ -664,11 +664,11 @@ void FhdParticleContainer::MoveIonsCPP(const Real dt, const Real* dxFluid, const
 
             TileIndex index(pti.index(), pti.LocalTileIndex());
 
-            AoS & aos = this->GetParticles(lev).at(index).GetArrayOfStructs();
+        AoS & aos = this->GetParticles(lev).at(index).GetArrayOfStructs();
 	    ParticleType* particles = aos().dataPtr();
-            long np = this->GetParticles(lev).at(index).numParticles();
+        long np = this->GetParticles(lev).at(index).numParticles();
 
-            amrex::ParallelFor(np, [=] AMREX_GPU_DEVICE (int i) noexcept
+        amrex::ParallelFor(np, [=] AMREX_GPU_DEVICE (int i) noexcept
             //for (int i = 0; i < np; ++ i) 
 	    {
                 ParticleType & part = particles[i];
@@ -810,7 +810,7 @@ void FhdParticleContainer::MoveIonsCPP(const Real dt, const Real* dxFluid, const
                     for (int d=0; d<AMREX_SPACEDIM; ++d)
                     {
                         part.pos(d) += inttime * part.rdata(FHD_realData::velx + d)*adj;
-                        //part.rdata(FHD_realData::ax +d ) += inttime * part.rdata(FHD_realData::velx + d)*adj;
+                        part.rdata(FHD_realData::ax +d ) += inttime * part.rdata(FHD_realData::velx + d)*adj;
                         //thisMove[d] += inttime * part.rdata(FHD_realData::velx + d)*adj;
                     }
                     runtime = runtime - inttime;
@@ -820,7 +820,9 @@ void FhdParticleContainer::MoveIonsCPP(const Real dt, const Real* dxFluid, const
 
                         Real dummy = 1;
                         //app_bc(&surf, &part, &intside, domsize, &push, &dummy, &dummy);
+
                         app_bc_gpu(&surf, part, intside, pdomsize, &push, &runtime, dummy, engine);
+
                         //std::cout << "Post: " << part.id() << ", " << part.rdata(FHD_realData::velx) << ", " << part.rdata(FHD_realData::vely) << ", " << part.rdata(FHD_realData::velz) << ", " << intsurf << "\n";
 
                         if(push == 1)
@@ -828,7 +830,7 @@ void FhdParticleContainer::MoveIonsCPP(const Real dt, const Real* dxFluid, const
                             for (int d=0; d<AMREX_SPACEDIM; ++d)
                             {
                                 part.pos(d) += part.pos(d) + posAlt[d];
-                                //part.rdata(FHD_realData::ax + d) += part.pos(d) + posAlt[d];
+                                part.rdata(FHD_realData::ax + d) += part.rdata(FHD_realData::ax + d) + posAlt[d];
                                 //thisMove[d] += part.pos(d) + posAlt[d];
                             }
                         }
@@ -836,10 +838,10 @@ void FhdParticleContainer::MoveIonsCPP(const Real dt, const Real* dxFluid, const
 
                 }
 
-                for (int d=0; d<AMREX_SPACEDIM; ++d)
-                {
-                    part.rdata(FHD_realData::ax + d) += part.rdata(FHD_realData::velx + d)*dt;
-                }
+//                for (int d=0; d<AMREX_SPACEDIM; ++d)
+//                {
+//                    part.rdata(FHD_realData::ax + d) += part.rdata(FHD_realData::velx + d)*dt;
+//                }
 
     //            Print() << part.id() << " vel: " << setprecision(15) << part.rdata(FHD_realData::velx) << " pos: " << part.pos(0) << "\n";
 
@@ -914,11 +916,11 @@ void FhdParticleContainer::MoveIonsCPP(const Real dt, const Real* dxFluid, const
         Print() <<"Maximum observed displacement (fraction of radius): " << maxdist_proc << "\n";
         //Print() <<"Average diffusion coefficient: " << diffinst_proc/np_proc << "\n";
     }
-    if(reDist != 0)
-    {
+//    if(reDist != 0)
+//    {
         Redistribute();
         doRedist = 1;
-    }
+//    }
 }
 
 
@@ -1734,8 +1736,8 @@ void FhdParticleContainer::collectFieldsGPU(const Real dt, const Real* dxPotenti
     charge.setVal(0.0);
     chargeTemp.setVal(0.0);
 
-    mass.setVal(0.0);
-    massTemp.setVal(0.0);
+    //mass.setVal(0.0);
+    //massTemp.setVal(0.0);
 
     for (FhdParIter pti(*this, lev); pti.isValid(); ++pti)
     {
@@ -1823,7 +1825,7 @@ void FhdParticleContainer::EvaluateStats(MultiFab& particleInstant,
         Array4<Real> part_mean = particleMeans[pti].array();
 
         //const Array4<Real>& data = charge.array(mfi);
-
+		  // Updates multfab
         AMREX_FOR_1D( np, ni,
         {
             ParticleType & part = particles[ni];
@@ -2443,6 +2445,17 @@ FhdParticleContainer::MeanSqrCalc(int lev, int reset) {
         ofs.close();
     }
     
+}
+
+void
+FhdParticleContainer::GetAllParticlePositions(Real* posx, Real* posy, Real* posz, int totalParticles) {
+
+
+    // collect particle positions onto one processor
+    PullDown(0, posx, -1, totalParticles);
+    PullDown(0, posy, -2, totalParticles);
+    PullDown(0, posz, -3, totalParticles);
+
 }
 
 void

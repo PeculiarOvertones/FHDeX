@@ -1,3 +1,4 @@
+//#include "Checkpoint.H"
 #include "INS_functions.H"
 
 #include "AMReX_PlotFileUtil.H"
@@ -222,7 +223,9 @@ void ReadCheckPoint(int& step,
         GotoNextLine(is);
 
         // read in statsCount
-        is >> statsCount; GotoNextLine(is); 
+        is >> statsCount; 
+	GotoNextLine(is); 
+	
         // read in BoxArray (fluid) from Header
         BoxArray ba;
         ba.readFrom(is);

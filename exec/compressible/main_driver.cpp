@@ -1,14 +1,12 @@
 #include "common_functions.H"
 #include "compressible_functions.H"
 
-#include "common_namespace_declarations.H"
 
 #include "rng_functions.H"
 
 #include "StructFact.H"
 
 #include "chemistry_functions.H"
-#include "chemistry_namespace_declarations.H"
 
 #include "chrono"
 
@@ -25,12 +23,11 @@ void main_driver(const char* argv)
 
     std::string inputs_file = argv;
 
-    // read in parameters from inputs file into F90 modules
-    // we use "+1" because of amrex_string_c_to_f expects a null char termination
-    read_common_namelist(inputs_file.c_str(),inputs_file.size()+1);
     
     // copy contents of F90 modules to C++ namespaces
     InitializeCommonNamespace();
+
+    InitializeCompressibleNamespace();
 
     // read the inputs file for chemistry
     InitializeChemistryNamespace();
@@ -200,8 +197,11 @@ void main_driver(const char* argv)
     spatialCrossAv.setVal(0.0);
 
     // external source term - currently only chemistry source considered for nreaction>0
-    MultiFab source(ba,dmap,nprimvars,ngc);
+    MultiFab source(ba,dmap,nvars,ngc);
     source.setVal(0.0);
+
+    MultiFab ranchem;
+    if (nreaction>0) ranchem.define(ba,dmap,nreaction,ngc);
 
     //Initialize physical parameters from input vals
 
@@ -533,7 +533,7 @@ void main_driver(const char* argv)
         Real ts1 = ParallelDescriptor::second();
 
         RK3step(cu, cup, cup2, cup3, prim, source, eta, zeta, kappa, chi, D, flux,
-                stochFlux, cornx, corny, cornz, visccorn, rancorn, geom, dt);
+                stochFlux, cornx, corny, cornz, visccorn, rancorn, ranchem, geom, dt);
 
         // timer
         Real ts2 = ParallelDescriptor::second() - ts1;
