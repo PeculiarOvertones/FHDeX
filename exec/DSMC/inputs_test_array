@@ -1,8 +1,8 @@
 &common
 
   ! Problem specification
-  prob_lo(1:3) = -6e-4 -3e-4 0      ! physical lo coordinate
-  prob_hi(1:3) = 6e-4 3e-4 145e-7     ! physical hi coordinate (from Jing's paper; lateral dimesions are smaller)
+  prob_lo(1:3) = -8e-4 -3e-4 0      ! physical lo coordinate
+  prob_hi(1:3) = 8e-4 3e-4 145e-7     ! physical hi coordinate (from Jing's paper; lateral dimesions are smaller)
     
   n_cells(1:3) = 32 32 4                  ! leads to 50% dry + 50% wet
   ! max number of cells in a box
@@ -12,12 +12,12 @@
 
   ! Time-step control
   ! phonons should travel < mean free length during one dt
-  fixed_dt = 1e-9                         ! 1e-13 is too large 
+  fixed_dt = 5e-10                         ! 1e-13 is too large 
 
   ! Controls for number of steps between actions
-  max_step = 1000
+  max_step = 2000
  
-  plot_int = 2
+  plot_int = 1
   plot_ascii = 0
   struct_fact_int = -1
   n_steps_skip = 10000
