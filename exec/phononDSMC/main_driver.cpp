@@ -178,11 +178,11 @@ void main_driver(const char* argv)
 			writeStep = istep;
 		}
 
-		particles.SourcePhonons(dt, paramPlaneList, paramPlaneCount);
+		particles.SourcePhonons(dt, paramPlaneList, paramPlaneCount); // generate phonons 
 
-		particles.MovePhononsCPP(dt, paramPlaneList, paramPlaneCount, writeStep);
+		particles.MovePhononsCPP(dt, paramPlaneList, paramPlaneCount, writeStep); // phonons interacting with BCs
 
-		particles.EvaluateStatsPhonon(cuInst,cuMeans,cuVars,statsCount++,time);
+		particles.EvaluateStatsPhonon(cuInst,cuMeans,cuVars,statsCount++,time); // postprocessing
 
 		//////////////////////////////////////
 		// PlotFile

@@ -406,7 +406,7 @@ void app_bc_phonon_gpu(const paramPlane* surf, FhdParticleContainer::ParticleTyp
       {
         *runtime = 0;
 
-        part.id() = -1;
+        part.id() = -1; // this phonon gets absorbed by sink
       }
       else if(amrex::Random(engine) > surf->porosityRight)
       {
@@ -437,7 +437,7 @@ void app_bc_phonon_gpu(const paramPlane* surf, FhdParticleContainer::ParticleTyp
             //Lambert cosine law
           cosineLawHemisphere(surf->cosThetaRight, surf->sinThetaRight, surf->cosPhiRight, surf->sinPhiRight,
                             &part.rdata(FHD_realData::velx),&part.rdata(FHD_realData::vely), &part.rdata(FHD_realData::velz), speed, 
-                            engine);        
+                            engine);     // diffusive scatter at the interface    
         
         }
       }

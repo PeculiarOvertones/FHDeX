@@ -316,20 +316,20 @@ void FhdParticleContainer::MovePhononsCPP(const Real dt, const paramPlane* param
 		{
 			ParticleType & part = particles[i];
 			runtime = dt*part.rdata(FHD_realData::timeFrac);
-			while(runtime > 0)
+			while(runtime > 0) // within one time step
 			{
 				find_inter_gpu(part, runtime, paramPlaneList, paramPlaneCount,
-					&intsurf, &inttime, &intside, ZFILL(plo), ZFILL(phi));
+					&intsurf, &inttime, &intside, ZFILL(plo), ZFILL(phi)); // calculate the time needed for next BC intersection to occur
 				
 				Real tauImpurityInv = pow(part.rdata(FHD_realData::omega),4)/tau_i;
 				Real tauTAInv = part.rdata(FHD_realData::omega)*pow(T_init[0],4)/tau_ta;
 				Real tauLAInv = pow(part.rdata(FHD_realData::omega),2)*pow(T_init[0],3)/tau_la;
 				Real tauNormalInv = (2.0*tauTAInv+tauLAInv)/3.0;
-				Real tauInv = tauImpurityInv + tauNormalInv;
+				Real tauInv = tauImpurityInv + tauNormalInv; 
 				
-				Real scatterTime = -log(amrex::Random(engine))/tauInv;
+				Real scatterTime = -log(amrex::Random(engine))/tauInv;// relaxation time of phonons
 				
-                if(scatterTime > inttime)
+                if(scatterTime > inttime) // if intersection of interfaces occurs earlier than internal scattering (phonon-lattice & phonon-phonon)
                 {
                     runtime = runtime - inttime;
                     
@@ -373,7 +373,7 @@ void FhdParticleContainer::MovePhononsCPP(const Real dt, const paramPlane* param
 					    part.pos(d) += scatterTime * part.rdata(FHD_realData::velx + d)*adj;
 				    }
 				    
-				    randomSphere(&part.rdata(FHD_realData::velx),&part.rdata(FHD_realData::vely), &part.rdata(FHD_realData::velz), engine);				    
+				    randomSphere(&part.rdata(FHD_realData::velx),&part.rdata(FHD_realData::vely), &part.rdata(FHD_realData::velz), engine);			 // internal scattering	    
                 }
                 
 			}
@@ -692,7 +692,7 @@ void FhdParticleContainer::SourcePhonons(const Real dt, const paramPlane* paramP
 	Real smallNumber = dx[0];
 	if(dx[1] < smallNumber){smallNumber = dx[1];}
 	if(dx[2] < smallNumber){smallNumber = dx[2];}
-	smallNumber = smallNumber*0.00000001;
+	smallNumber = smallNumber*0.00000001; // this is a bad way of making the small numbers
 	
 	amrex::RandomEngine engine;
 	
@@ -708,7 +708,7 @@ void FhdParticleContainer::SourcePhonons(const Real dt, const paramPlane* paramP
 
 			for(int i = 0; i< paramPlaneCount; i++)
 			{
-				if(paramPlaneList[i].sourceLeft == 1)
+				if(paramPlaneList[i].sourceLeft == 1) // left
 				{
 					for(int j = 0; j< nspecies; j++)
 					{
@@ -726,6 +726,7 @@ void FhdParticleContainer::SourcePhonons(const Real dt, const paramPlane* paramP
 						{
 							totalFluxInt++;
 						}
+						// for decimal phonon ##.**, there is a 0.** possibility for this phonon to be generated 
 
 						for(int k=0;k<totalFluxInt;k++)
 						{
@@ -747,23 +748,23 @@ void FhdParticleContainer::SourcePhonons(const Real dt, const paramPlane* paramP
 							//move the particle slightly off the surface so it doesn't intersect it when it moves
 							p.pos(0) = p.pos(0) + smallNumber*paramPlaneList[i].lnx;
 							p.pos(1) = p.pos(1) + smallNumber*paramPlaneList[i].lny;
-							p.pos(2) = p.pos(2) + smallNumber*paramPlaneList[i].lnz;
+							p.pos(2) = p.pos(2) + smallNumber*paramPlaneList[i].lnz; // move the source phonons a little bit away from excitation plane to avoid interaction with the boundary
 
-							p.rdata(FHD_realData::boostx) = 0;
-							p.rdata(FHD_realData::boosty) = 0;
-							p.rdata(FHD_realData::boostz) = 0;
+							//p.rdata(FHD_realData::boostx) = 0;
+							//p.rdata(FHD_realData::boosty) = 0;
+							//p.rdata(FHD_realData::boostz) = 0;
 
 							p.idata(FHD_intData::i) = -100;
 							p.idata(FHD_intData::j) = -100;
-							p.idata(FHD_intData::k) = -100;
+							p.idata(FHD_intData::k) = -100; // negative # means the phonon is not assigned any cell
 
-							p.rdata(FHD_realData::R) = properties[j].R;
+							//p.rdata(FHD_realData::R) = properties[j].R;
 							p.rdata(FHD_realData::timeFrac) = amrex::Random();
 
-							Real srt = sqrt(p.rdata(FHD_realData::R)*temp);
-							p.rdata(FHD_realData::velx) = srt*amrex::RandomNormal(0.,1.);
-							p.rdata(FHD_realData::vely) = srt*amrex::RandomNormal(0.,1.);
-							p.rdata(FHD_realData::velz) = sqrt(2)*srt*sqrt(-log(amrex::Random()));
+							//Real srt = sqrt(p.rdata(FHD_realData::R)*temp);
+							//p.rdata(FHD_realData::velx) = srt*amrex::RandomNormal(0.,1.);
+							//p.rdata(FHD_realData::vely) = srt*amrex::RandomNormal(0.,1.);
+							//p.rdata(FHD_realData::velz) = sqrt(2)*srt*sqrt(-log(amrex::Random()));
 
 							const paramPlane surf = paramPlaneList[i];
 							
@@ -786,7 +787,7 @@ void FhdParticleContainer::SourcePhonons(const Real dt, const paramPlane* paramP
                         
 					}
 				}
-				else if(paramPlaneList[i].sourceRight == 1)
+				else if(paramPlaneList[i].sourceRight == 1) // right
 				{
 					for(int j=0; j< nspecies; j++)
 					{

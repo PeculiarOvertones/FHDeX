@@ -12,9 +12,7 @@
   # Controls for number of steps between actions
   max_step =     10000
   plot_int =     1000
-  n_steps_skip = -1000 # statistical steady state determinator
-  # positive: starting from n_steps_skip, do average 
-  # negative: every n_steps_skip, do average of the previous n_steps_skip
+  n_steps_skip = -1000
 
   # ignore following 3 lines
   reset_stats = 1
