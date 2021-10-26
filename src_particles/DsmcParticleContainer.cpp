@@ -750,21 +750,13 @@ void FhdParticleContainer::SourcePhonons(const Real dt, const paramPlane* paramP
 							p.pos(1) = p.pos(1) + smallNumber*paramPlaneList[i].lny;
 							p.pos(2) = p.pos(2) + smallNumber*paramPlaneList[i].lnz; // move the source phonons a little bit away from excitation plane to avoid interaction with the boundary
 
-							//p.rdata(FHD_realData::boostx) = 0;
-							//p.rdata(FHD_realData::boosty) = 0;
-							//p.rdata(FHD_realData::boostz) = 0;
 
 							p.idata(FHD_intData::i) = -100;
 							p.idata(FHD_intData::j) = -100;
 							p.idata(FHD_intData::k) = -100; // negative # means the phonon is not assigned any cell
 
-							//p.rdata(FHD_realData::R) = properties[j].R;
 							p.rdata(FHD_realData::timeFrac) = amrex::Random();
 
-							//Real srt = sqrt(p.rdata(FHD_realData::R)*temp);
-							//p.rdata(FHD_realData::velx) = srt*amrex::RandomNormal(0.,1.);
-							//p.rdata(FHD_realData::vely) = srt*amrex::RandomNormal(0.,1.);
-							//p.rdata(FHD_realData::velz) = sqrt(2)*srt*sqrt(-log(amrex::Random()));
 
 							const paramPlane surf = paramPlaneList[i];
 							
