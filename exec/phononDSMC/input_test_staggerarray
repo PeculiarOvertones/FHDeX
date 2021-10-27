@@ -1,6 +1,6 @@
  # Problem specification
-  prob_lo = 0.0 0.0 0.0     			 	# physical lo coordinate
-  prob_hi = 0.08 0.08 0.01	# physical hi coordinate (cm)
+  prob_lo = -0.001 -0.0003 0.0     			 	# physical lo coordinate
+  prob_hi =  0.001  0.0003 0.000016	# physical hi coordinate (cm)
 
   n_cells = 80 80 10 # grid that data is recorded on
   max_grid_size = 40 40 10 # mpi rank
@@ -12,7 +12,9 @@
   # Controls for number of steps between actions
   max_step =     10000
   plot_int =     1000
-  n_steps_skip = -1000
+  n_steps_skip = -1000 # statistical steady state determinator
+  # positive: starting from n_steps_skip, do average 
+  # negative: every n_steps_skip, do average of the previous n_steps_skip
 
   # ignore following 3 lines
   reset_stats = 1
