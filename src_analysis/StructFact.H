@@ -69,7 +69,13 @@ public:
                const amrex::Vector< std::string >&,
                const amrex::Vector< amrex::Real >&,
                const int& verbosity=0);
-
+    
+    void define(const amrex::BoxArray&, const amrex::DistributionMapping&, 
+                const amrex::Vector< std::string >&,
+                const amrex::Vector< amrex::Real >&,
+                const amrex::Vector< int >&, const amrex::Vector< int >&,
+                const int& verbosity=0);
+    
     void define(const amrex::BoxArray&, const amrex::DistributionMapping&, 
                 const amrex::Vector< std::string >&,
                 const amrex::Vector< amrex::Real >&,
@@ -88,6 +94,8 @@ public:
     
     void Finalize(amrex::MultiFab&, amrex::MultiFab&, const Geometry& geom,
                   const int& zero_avg=1);
+
+    void CallFinalize(const Geometry& geom, const int& zero_avg=1);
     
     void ShiftFFT(amrex::MultiFab&,  const Geometry& geom,
                   const int& zero_avg=1);
