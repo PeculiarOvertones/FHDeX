@@ -428,6 +428,21 @@ void FhdParticleContainer::MovePhononsCPP(const Real dt, const paramPlane* param
 	
 	Redistribute();
 	SortParticles();
+
+	if (ParallelDescriptor::MyProc() == 0){
+		std::string plotfilename = "totalparts";
+		std::fstream ofs;
+		ofs.open(plotfilename, std::ios::app);
+		if (!ofs){
+			std::ofstream ofs(plotfilename, std::ios::app);
+			ofs << totalParts << std::endl;
+			ofs.close();
+		}
+		else{
+			ofs << totalParts << std::endl;
+			ofs.close();
+		}
+	}
 }
 
 void FhdParticleContainer::SortParticles()
